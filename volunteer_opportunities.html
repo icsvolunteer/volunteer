@@ -162,7 +162,7 @@
 
 <script>
     //    jsonp('https://spreadsheets.google.com/a/google.com/tq?key=1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us&tq=select%20*%20limit%2010&tqx=responseHandler:my_callback');
-    query('select * where K > 0 and L > now() limit 120 format A "yyyy-MM-dd"', 'my_callback');
+    query('select * where K > 0 and L > now() order by L asc limit 999', 'my_callback');
 
 </script>
 
