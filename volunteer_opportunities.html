@@ -67,7 +67,7 @@
 
     var query = function(sql, callback)
     {
-        var url = 'http://spreadsheets.google.com/a/google.com/tq?',
+        var url = 'https://spreadsheets.google.com/a/google.com/tq?',
             params = {
                 key: '1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us',
                 tq: encodeURIComponent(sql),
@@ -158,7 +158,7 @@
 </script>
 
 <script>
-    //    jsonp('http://spreadsheets.google.com/a/google.com/tq?key=1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us&tq=select%20*%20limit%2010&tqx=responseHandler:my_callback');
+    //    jsonp('https://spreadsheets.google.com/a/google.com/tq?key=1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us&tq=select%20*%20limit%2010&tqx=responseHandler:my_callback');
     query('select * where L > now() limit 120 format A "yyyy-MM-dd"', 'my_callback');
 
 </script>
