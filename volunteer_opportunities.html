@@ -105,7 +105,7 @@
                 if (cellValue.toString().startsWith("Date(")) {
                     cellValue = parseDate(cellValue);
                 } else if (validateEmail(cellValue.toString())) {
-                    cellValue = '<a href="mailto:' + cellValue + '">' + cellValue + '</a>'
+                    cellValue = '<a href="mailto:' + cellValue + '?cc=volunteering@immanuelschool.ca">' + cellValue + '</a>'
                 }
                 row$.append($('<td/>').html(cellValue));
             }
