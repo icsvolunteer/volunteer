@@ -127,8 +127,11 @@
             {
                 if ($.inArray(key, columnSet) == -1)
                 {
-                    columnSet.push(key);
-                    headerTr$.append($('<th/>').html(key));
+                    if (key != 'Timestamp')
+                    {
+                        columnSet.push(key);
+                        headerTr$.append($('<th/>').html(key));
+                    }
                 }
             }
         }
