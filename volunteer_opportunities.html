@@ -58,7 +58,7 @@
                 {
                     result[rows_idx] = {};
                 }
-                value = !!data.table.rows[rows_idx]['c'][row_idx].v ? data.table.rows[rows_idx]['c'][row_idx].v : null;
+                value = !!data.table.rows[rows_idx]['c'][row_idx] && data.table.rows[rows_idx]['c'][row_idx].v ? data.table.rows[rows_idx]['c'][row_idx].v : null;
                 result[rows_idx][columns[row_idx]] = value;
             }
         }
@@ -127,7 +127,7 @@
             {
                 if ($.inArray(key, columnSet) == -1)
                 {
-                    if (key != 'Timestamp')
+                    if (key != 'Timestamp' && key != 'Email Address')
                     {
                         columnSet.push(key);
                         headerTr$.append($('<th/>').html(key));
@@ -162,7 +162,7 @@
 
 <script>
     //    jsonp('https://spreadsheets.google.com/a/google.com/tq?key=1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us&tq=select%20*%20limit%2010&tqx=responseHandler:my_callback');
-    query('select * where L > now() limit 120 format A "yyyy-MM-dd"', 'my_callback');
+    query('select * where K > 0 and L > now() limit 120 format A "yyyy-MM-dd"', 'my_callback');
 
 </script>
 
