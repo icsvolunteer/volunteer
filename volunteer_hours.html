@@ -1,0 +1,207 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script>
+    //https://coderwall.com/p/pluhsg/google-spreadsheet-json-api-sql-filtering
+    var jsonp = function (url) {
+        var script = window.document.createElement('script');
+        script.async = true;
+        script.src = url;
+        script.onerror = function () {
+            alert('Can not access JSONP file.')
+        };
+        var done = false;
+        script.onload = script.onreadystatechange = function () {
+            if (!done && (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete'))
+            {
+                done = true;
+                script.onload = script.onreadystatechange = null;
+                if (script.parentNode)
+                {
+                    return script.parentNode.removeChild(script);
+                }
+            }
+        };
+        window.document.getElementsByTagName('head')[0].appendChild(script);
+    };
+
+    var parse = function (data) {
+        var column_length = data.table.cols.length;
+        if (!column_length || !data.table.rows.length)
+        {
+            return false;
+        }
+        var columns = [],
+            result = [],
+            row_length,
+            value;
+        for (var column_idx in data.table.cols)
+        {
+            columns.push(data.table.cols[column_idx].label);
+        }
+        for (var rows_idx in data.table.rows)
+        {
+            row_length = data.table.rows[rows_idx]['c'].length;
+            if (column_length != row_length)
+            {
+                // Houston, we have a problem!
+                return false;
+            }
+            for (var row_idx in data.table.rows[rows_idx]['c'])
+            {
+                if (!result[rows_idx])
+                {
+                    result[rows_idx] = {};
+                }
+                value = !!data.table.rows[rows_idx]['c'][row_idx] && data.table.rows[rows_idx]['c'][row_idx].v ? data.table.rows[rows_idx]['c'][row_idx].v : null;
+                result[rows_idx][columns[row_idx]] = value;
+            }
+        }
+        return result;
+    };
+
+    var query = function(sql, callback)
+    {
+        var url = 'https://spreadsheets.google.com/a/google.com/tq?',
+            params = {
+                key: '1w0iBaK3vaByusg7uaI5HPsiJ9NBkGVLT1mPFGVPBJLM',
+                tq: encodeURIComponent(sql),
+                tqx: 'responseHandler:' + callback
+            },
+            qs = [];
+        for (var key in params)
+        {
+            qs.push(key + '=' + params[key]);
+        }
+        url += qs.join('&');
+        return jsonp(url); // Call JSONP helper function
+    }
+
+    var my_callback = function (data) {
+        console.log(data);
+        data = parse(data);
+        buildHtmlTable(data, excelDataTable);
+    }
+</script>
+<script>
+    //https://stackoverflow.com/questions/5180382/convert-json-data-to-a-html-table
+
+    // Builds the HTML Table out of myList.
+    function buildHtmlTable(myList, selector) {
+        var columns = addAllColumnHeaders(myList, selector);
+
+        for (var i = 0; i < myList.length; i++)
+        {
+            var row$ = $('<tr/>');
+            for (var colIndex = 0; colIndex < columns.length; colIndex++)
+            {
+                var cellValue = myList[i][columns[colIndex]];
+                if (cellValue == null) cellValue = "";
+                if (cellValue.toString().startsWith("Date(")) {
+                    cellValue = parseDate(cellValue);
+                } else if (validateEmail(cellValue.toString())) {
+                    cellValue = '<a href="mailto:' + cellValue + '?cc=volunteering@immanuelschool.ca">' + cellValue + '</a>'
+                }
+                row$.append($('<td/>').html(cellValue));
+            }
+            $(selector).append(row$);
+        }
+    }
+
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records.
+    function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        for (var i = 0; i < myList.length; i++)
+        {
+            var rowHash = myList[i];
+            for (var key in rowHash)
+            {
+                if ($.inArray(key, columnSet) == -1)
+                {
+                    if (key != 'Timestamp' && key != 'Email Address')
+                    {
+                        columnSet.push(key);
+                        headerTr$.append($('<th/>').html(key));
+                    }
+                }
+            }
+        }
+        $(selector).append(headerTr$);
+
+        return columnSet;
+    }
+
+    function parseDate(date) {
+        date = date.substr(5, date.length - 6);
+        date = date.split(',');
+
+        if (date.length > 3) {
+            return date[0] + '-' + date[1] + '-' + date[2] + ' ' + date[3] + ':' + date[4] + ':' + date[5];
+        } else {
+            return date[0] + '-' + date[1] + '-' + date[2];
+        }
+
+    }
+
+    function validateEmail(email) {
+        // https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+</script>
+
+<script>
+    //    jsonp('https://spreadsheets.google.com/a/google.com/tq?key=1WtznJVWMQiJI1t5wmGqn9XvBAhoBOlAANgXml09I5us&tq=select%20*%20limit%2010&tqx=responseHandler:my_callback');
+    function submitForm() {
+        $(excelDataTable).empty();
+
+        var name = document.forms["myForm"]["name"].value;
+        var code = document.forms["myForm"]["code"].value;
+        query('select A,B where upper(A) = upper("' + name + '") and upper(C) = upper("' + code + '") limit 999', 'my_callback');
+        return false;
+    }
+
+</script>
+
+<center><h1>Enter Student Info to retrieve hours</h1></center>
+<form name="myForm" onsubmit="return submitForm()" method="post">
+    <table align="center">
+        <tr>
+            <td>
+                Student Name:
+            </td>
+            <td>
+                <input type="text" name="name" value="">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Code:
+            </td>
+            <td>
+                <input type="text" name="code" value="">
+            </td>
+        </tr>
+    </table>
+    <br/><br/>
+    <center><input type="submit" value="Submit"></center>
+</form>
+
+<br/><br/><br/>
+<div style="overflow-x:auto;">
+    <table id="excelDataTable" border="1" width="300" align="center">
+    </table>
+</div>
+
+</body>
+</html>
