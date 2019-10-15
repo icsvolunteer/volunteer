@@ -167,7 +167,7 @@
 
         var name = document.forms["myForm"]["name"].value;
         var code = document.forms["myForm"]["code"].value;
-        query('select A,B where upper(A) = upper("' + name + '") and upper(C) = upper("' + code + '") limit 999', 'my_callback');
+        query('select A,B,C,D where (upper(A) = upper("' + name + '") or upper(B) = upper("' + name + '") or upper(C) = upper("' + name + '")) and upper(E) = upper("' + code + '") limit 999', 'my_callback');
         return false;
     }
 
@@ -189,7 +189,7 @@
                 Code:
             </td>
             <td>
-                <input type="text" name="code" value="">
+                <input type="password" name="code" value="">
             </td>
         </tr>
     </table>
@@ -199,7 +199,7 @@
 
 <br/><br/><br/>
 <div style="overflow-x:auto;">
-    <table id="excelDataTable" border="1" width="300" align="center">
+    <table id="excelDataTable" border="1" width="640" align="center">
     </table>
 </div>
 
